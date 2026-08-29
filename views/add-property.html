@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Add Property - StudentStay</title>
+    <link rel="stylesheet" href="/css/style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="container">
+            <div class="nav-brand">
+                <i class="fas fa-home"></i>
+                <span>StudentStay</span>
+            </div>
+            <ul class="nav-menu">
+                <li><a href="/">Home</a></li>
+                <li><a href="/properties">Properties</a></li>
+                <li><a href="/dashboard" class="active">Dashboard</a></li>
+            </ul>
+            <div class="nav-actions">
+                <a href="/dashboard" class="btn btn-outline btn-sm">Dashboard</a>
+                <button onclick="logout()" class="btn btn-sm btn-danger">Logout</button>
+            </div>
+            <button class="nav-toggle" onclick="document.querySelector('.nav-menu').classList.toggle('active')">
+                <i class="fas fa-bars"></i>
+            </button>
+        </div>
+    </nav>
+
+    <div class="container">
+        <div class="add-property-page">
+            <h1>Add New Property</h1>
+            
+            <form id="addPropertyForm" class="property-form">
+                <div class="form-section">
+                    <h2>Basic Information</h2>
+                    
+                    <div class="form-group">
+                        <label for="title">Property Title *</label>
+                        <input type="text" id="title" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="description">Description *</label>
+                        <textarea id="description" rows="4" required></textarea>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="type">Property Type *</label>
+                            <select id="type" required>
+                                <option value="room">Room</option>
+                                <option value="apartment">Apartment</option>
+                                <option value="pg">PG</option>
+                                <option value="hostel">Hostel</option>
+                                <option value="studio">Studio</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="university">Nearest University *</label>
+                            <input type="text" id="university" required>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-section">
+                    <h2>Location</h2>
+                    
+                    <div class="form-group">
+                        <label for="street">Street Address *</label>
+                        <input type="text" id="street" required>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="area">Area *</label>
+                            <input type="text" id="area" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="city">City *</label>
+                            <input type="text" id="city" required>
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="district">District *</label>
+                            <input type="text" id="district" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="distance">Distance from University (km) *</label>
+                            <input type="number" id="distance" step="0.1" required>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-section">
+                    <h2>Pricing & Rooms</h2>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="price">Price (BDT) *</label>
+                            <input type="number" id="price" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="period">Period *</label>
+                            <select id="period" required>
+                                <option value="monthly">Monthly</option>
+                                <option value="semester">Semester</option>
+                                <option value="yearly">Yearly</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="totalRooms">Total Rooms *</label>
+                            <input type="number" id="totalRooms" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="availableRooms">Available Rooms *</label>
+                            <input type="number" id="availableRooms" required>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-section">
+                    <h2>Property Image</h2>
+                    
+                    <div class="form-group">
+                        <label for="imageFile">Upload Property Image *</label>
+                        <input type="file" id="imageFile" accept="image/*" onchange="previewImage(event)">
+                        <div id="imagePreviewContainer" style="margin-top: 15px; display: none;">
+                            <img id="imagePreview" src="" alt="Preview" style="max-width: 100%; height: 240px; object-fit: cover; border-radius: 8px; border: 1px solid var(--border);">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-section">
+                    <h2>Contact Information</h2>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="contactPhone">Contact Phone *</label>
+                            <input type="tel" id="contactPhone" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="contactEmail">Contact Email</label>
+                            <input type="email" id="contactEmail">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-actions">
+                    <button type="submit" class="btn btn-primary">Add Property</button>
+                    <a href="/dashboard" class="btn btn-outline">Cancel</a>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        const token = localStorage.getItem('token');
+
+        if (!token) {
+            window.location.href = '/login';
+        }
+
+        function logout() {
+            localStorage.removeItem('token');
+            localStorage.removeItem('user');
+            window.location.href = '/login';
+        }
+
+        let uploadedImageUrl = '';
+
+        function previewImage(event) {
+            const file = event.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    uploadedImageUrl = e.target.result;
+                    const preview = document.getElementById('imagePreview');
+                    const previewContainer = document.getElementById('imagePreviewContainer');
+                    preview.src = uploadedImageUrl;
+                    previewContainer.style.display = 'block';
+                }
+                reader.readAsDataURL(file);
+            }
+        }
+
+        // Check if we're in edit mode
+        const params = new URLSearchParams(window.location.search);
+        const editId = params.get('edit');
+        let isEditMode = false;
+
+        if (editId) {
+            isEditMode = true;
+            document.querySelector('.add-property-page h1').textContent = 'Edit Property';
+            document.querySelector('.form-actions .btn-primary').textContent = 'Update Property';
+            document.title = 'Edit Property - StudentStay';
+            loadPropertyData(editId);
+        }
+
+        async function loadPropertyData(id) {
+            try {
+                const response = await fetch(`/api/properties/${id}`);
+                const data = await response.json();
+
+                if (data.success) {
+                    const p = data.data;
+                    document.getElementById('title').value = p.title || '';
+                    document.getElementById('description').value = p.description || '';
+                    document.getElementById('type').value = p.type || 'room';
+                    document.getElementById('university').value = p.university || '';
+                    document.getElementById('street').value = p.address?.street || '';
+                    document.getElementById('area').value = p.address?.area || '';
+                    document.getElementById('city').value = p.address?.city || '';
+                    document.getElementById('district').value = p.address?.district || '';
+                    document.getElementById('distance').value = p.distanceFromUniversity || '';
+                    document.getElementById('price').value = p.price?.amount || '';
+                    document.getElementById('period').value = p.price?.period || 'monthly';
+                    document.getElementById('totalRooms').value = p.rooms?.total || '';
+                    document.getElementById('availableRooms').value = p.rooms?.available || '';
+                    document.getElementById('contactPhone').value = p.contactInfo?.phone || '';
+                    document.getElementById('contactEmail').value = p.contactInfo?.email || '';
+
+                    // Load existing image if exists
+                    if (p.images && p.images.length > 0 && p.images[0].url) {
+                        uploadedImageUrl = p.images[0].url;
+                        const preview = document.getElementById('imagePreview');
+                        const previewContainer = document.getElementById('imagePreviewContainer');
+                        preview.src = uploadedImageUrl;
+                        previewContainer.style.display = 'block';
+                    }
+                } else {
+                    alert('Property not found');
+                    window.location.href = '/dashboard';
+                }
+            } catch (error) {
+                console.error('Error loading property:', error);
+                alert('Error loading property data');
+                window.location.href = '/dashboard';
+            }
+        }
+
+        document.getElementById('addPropertyForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const propertyData = {
+                title: document.getElementById('title').value,
+                description: document.getElementById('description').value,
+                type: document.getElementById('type').value,
+                university: document.getElementById('university').value,
+                distanceFromUniversity: parseFloat(document.getElementById('distance').value),
+                address: {
+                    street: document.getElementById('street').value,
+                    area: document.getElementById('area').value,
+                    city: document.getElementById('city').value,
+                    district: document.getElementById('district').value
+                },
+                price: {
+                    amount: parseFloat(document.getElementById('price').value),
+                    period: document.getElementById('period').value,
+                    currency: 'BDT'
+                },
+                rooms: {
+                    total: parseInt(document.getElementById('totalRooms').value),
+                    available: parseInt(document.getElementById('availableRooms').value)
+                },
+                contactInfo: {
+                    phone: document.getElementById('contactPhone').value,
+                    email: document.getElementById('contactEmail').value
+                }
+            };
+
+            // Set uploaded image or fall back to default placeholder
+            if (uploadedImageUrl) {
+                propertyData.images = [{
+                    url: uploadedImageUrl
+                }];
+            } else {
+                propertyData.images = [{
+                    url: 'https://via.placeholder.com/800x600?text=Property+Image'
+                }];
+            }
+
+            if (!isEditMode) {
+                propertyData.amenities = [];
+            }
+
+            try {
+                const url = isEditMode ? `/api/properties/${editId}` : '/api/properties';
+                const method = isEditMode ? 'PUT' : 'POST';
+
+                const response = await fetch(url, {
+                    method: method,
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify(propertyData)
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    alert(isEditMode ? 'Property updated successfully!' : 'Property added successfully!');
+                    window.location.href = '/dashboard';
+                } else {
+                    alert(data.message || 'Failed to save property');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('An error occurred. Please try again.');
+            }
+        });
+    </script>
+</body>
+</html>

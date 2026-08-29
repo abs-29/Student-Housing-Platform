@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Housing Platform - Find Your Perfect Accommodation</title>
+    <link rel="stylesheet" href="/css/style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <!-- Navbar -->
+    <nav class="navbar">
+        <div class="container">
+            <div class="nav-brand">
+                <i class="fas fa-home"></i>
+                <span>StudentStay</span>
+            </div>
+            <ul class="nav-menu">
+                <li><a href="/" class="active">Home</a></li>
+                <li><a href="/properties">Properties</a></li>
+                <li><a href="/#how-it-works">How It Works</a></li>
+                <li><a href="/#features">Features</a></li>
+            </ul>
+            <div class="nav-actions">
+                <a href="/login" class="btn btn-outline">Login</a>
+                <a href="/register" class="btn btn-primary">Sign Up</a>
+            </div>
+            <button class="nav-toggle" onclick="document.querySelector('.nav-menu').classList.toggle('active')">
+                <i class="fas fa-bars"></i>
+            </button>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="hero">
+        <div class="container">
+            <div class="hero-content">
+                <h1 class="hero-title">Find Your Perfect Student Home</h1>
+                <p class="hero-subtitle">Discover verified, affordable accommodation near your university</p>
+                
+                <div class="search-box">
+                    <div class="search-input-group">
+                        <i class="fas fa-map-marker-alt"></i>
+                        <input type="text" id="searchLocation" placeholder="University or Location">
+                    </div>
+                    <div class="search-input-group">
+                        <i class="fas fa-home"></i>
+                        <select id="propertyType">
+                            <option value="">Property Type</option>
+                            <option value="room">Room</option>
+                            <option value="apartment">Apartment</option>
+                            <option value="pg">PG</option>
+                            <option value="hostel">Hostel</option>
+                            <option value="studio">Studio</option>
+                        </select>
+                    </div>
+                    <button class="btn btn-primary" onclick="searchProperties()">
+                        <i class="fas fa-search"></i> Search
+                    </button>
+                </div>
+
+                <div class="stats">
+                    <div class="stat-item">
+                        <h3 id="totalProperties">0</h3>
+                        <p>Properties Available</p>
+                    </div>
+                    <div class="stat-item">
+                        <h3 id="totalBookings">0</h3>
+                        <p>Happy Students</p>
+                    </div>
+                    <div class="stat-item">
+                        <h3>50+</h3>
+                        <p>Universities</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Featured Properties -->
+    <section class="featured-properties">
+        <div class="container">
+            <h2 class="section-title">Featured Properties</h2>
+            <p class="section-subtitle">Handpicked accommodations for students</p>
+            
+            <div class="properties-grid" id="featuredProperties">
+                <div class="loading">Loading properties...</div>
+            </div>
+
+            <div class="text-center" style="margin-top: 40px;">
+                <a href="/properties" class="btn btn-primary">View All Properties</a>
+            </div>
+        </div>
+    </section>
+
+    <!-- How It Works -->
+    <section class="how-it-works" id="how-it-works">
+        <div class="container">
+            <h2 class="section-title">How It Works</h2>
+            <div class="steps">
+                <div class="step">
+                    <div class="step-icon">
+                        <i class="fas fa-search"></i>
+                    </div>
+                    <h3>Search</h3>
+                    <p>Find properties near your university with advanced filters</p>
+                </div>
+                <div class="step">
+                    <div class="step-icon">
+                        <i class="fas fa-check-circle"></i>
+                    </div>
+                    <h3>Compare</h3>
+                    <p>Compare verified listings with transparent pricing</p>
+                </div>
+                <div class="step">
+                    <div class="step-icon">
+                        <i class="fas fa-key"></i>
+                    </div>
+                    <h3>Book</h3>
+                    <p>Book directly without broker fees</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Features -->
+    <section class="features" id="features">
+        <div class="container">
+            <h2 class="section-title">Why Choose StudentStay?</h2>
+            <div class="features-grid">
+                <div class="feature">
+                    <i class="fas fa-shield-alt"></i>
+                    <h3>Verified Listings</h3>
+                    <p>All properties are verified by our team</p>
+                </div>
+                <div class="feature">
+                    <i class="fas fa-dollar-sign"></i>
+                    <h3>No Broker Fees</h3>
+                    <p>Connect directly with landlords</p>
+                </div>
+                <div class="feature">
+                    <i class="fas fa-star"></i>
+                    <h3>Real Reviews</h3>
+                    <p>Honest reviews from verified students</p>
+                </div>
+                <div class="feature">
+                    <i class="fas fa-headset"></i>
+                    <h3>24/7 Support</h3>
+                    <p>We're here to help anytime</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <h3>StudentStay</h3>
+                    <p>Your trusted platform for student accommodation</p>
+                </div>
+                <div class="footer-section">
+                    <h4>Quick Links</h4>
+                    <ul>
+                        <li><a href="/properties">Browse Properties</a></li>
+                        <li><a href="/register">List Your Property</a></li>
+                        <li><a href="/#how-it-works">How It Works</a></li>
+                        <li><a href="/#features">Features</a></li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h4>Contact</h4>
+                    <p><i class="fas fa-envelope"></i> info@studentstay.com</p>
+                    <p><i class="fas fa-phone"></i> +880 1721-140302</p>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2025 StudentStay. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="/js/main.js"></script>
+    <script>
+        // Load featured properties
+        async function loadFeaturedProperties() {
+            try {
+                const response = await fetch('/api/properties?limit=15');
+                const data = await response.json();
+                
+                const container = document.getElementById('featuredProperties');
+                
+                if (data.success && data.data.length > 0) {
+                    container.innerHTML = data.data.map(property => `
+                        <div class="property-card" onclick="viewProperty('${property._id}')" style="cursor: pointer;">
+                            <img src="${property.images[0]?.url || 'https://via.placeholder.com/400x300'}" alt="${property.title}">
+                            <div class="property-info">
+                                <h3>${property.title}</h3>
+                                <p class="location">
+                                    <i class="fas fa-map-marker-alt"></i>
+                                    ${property.address.area}, ${property.address.city}
+                                </p>
+                                <p class="university">
+                                    <i class="fas fa-university"></i>
+                                    ${property.university}
+                                </p>
+                                <div class="property-meta">
+                                    <span><i class="fas fa-bed"></i> ${property.rooms.total} Rooms</span>
+                                    <span><i class="fas fa-star"></i> ${property.rating.average.toFixed(1)}</span>
+                                </div>
+                                <div class="property-footer">
+                                    <div class="price">
+                                        <span class="amount">${property.price.currency} ${property.price.amount.toLocaleString()}</span>
+                                        <span class="period">/${property.price.period}</span>
+                                    </div>
+                                    <button class="btn btn-sm btn-primary" onclick="event.stopPropagation(); viewProperty('${property._id}')">View Details</button>
+                                </div>
+                            </div>
+                        </div>
+                    `).join('');
+                } else {
+                    container.innerHTML = '<p>No properties available at the moment.</p>';
+                }
+            } catch (error) {
+                console.error('Error loading properties:', error);
+                document.getElementById('featuredProperties').innerHTML = 
+                    '<p>Error loading properties. Please try again later.</p>';
+            }
+        }
+
+        // Load stats
+        async function loadStats() {
+            try {
+                const response = await fetch('/api/properties/stats');
+                const data = await response.json();
+                
+                if (data.success) {
+                    document.getElementById('totalProperties').textContent = data.data.totalProperties || 0;
+                    document.getElementById('totalBookings').textContent = data.data.totalBookings || 0;
+                }
+            } catch (error) {
+                console.error('Error loading stats:', error);
+            }
+        }
+
+        function searchProperties() {
+            const location = document.getElementById('searchLocation').value;
+            const type = document.getElementById('propertyType').value;
+            
+            let url = '/properties?';
+            if (location) url += `search=${encodeURIComponent(location)}&`;
+            if (type) url += `type=${type}`;
+            
+            window.location.href = url || '/properties';
+        }
+
+        function viewProperty(propertyId) {
+            window.location.href = `/property-details?id=${propertyId}`;
+        }
+
+        // Load data on page load
+        document.addEventListener('DOMContentLoaded', () => {
+            loadFeaturedProperties();
+            loadStats();
+        });
+    </script>
+</body>
+</html>

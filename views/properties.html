@@ -1,0 +1,510 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Properties - StudentStay</title>
+    <link rel="stylesheet" href="/css/style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="container">
+            <div class="nav-brand">
+                <i class="fas fa-home"></i>
+                <span>StudentStay</span>
+            </div>
+            <ul class="nav-menu">
+                <li><a href="/">Home</a></li>
+                <li><a href="/properties" class="active">Properties</a></li>
+                <li><a href="/dashboard">Dashboard</a></li>
+            </ul>
+            <div class="nav-actions">
+                <a href="/login" class="btn btn-outline">Login</a>
+                <a href="/register" class="btn btn-primary">Sign Up</a>
+            </div>
+            <button class="nav-toggle" onclick="document.querySelector('.nav-menu').classList.toggle('active')">
+                <i class="fas fa-bars"></i>
+            </button>
+        </div>
+    </nav>
+
+    <script>
+        // Update navbar based on auth state
+        function updateNavbarAuth() {
+            const token = localStorage.getItem('token');
+            const user = localStorage.getItem('user');
+            const navActions = document.querySelector('.nav-actions');
+            
+            if (!navActions) return;
+            
+            if (token && user) {
+                try {
+                    const userData = JSON.parse(user);
+                    // Show logged-in state
+                    navActions.innerHTML = `
+                        <span class="user-name">${userData.name || userData.email}</span>
+                        <div class="user-menu">
+                            <a href="/dashboard" class="btn btn-outline">Dashboard</a>
+                            <a href="/add-property" class="btn btn-outline">Add Property</a>
+                            <button class="btn btn-primary" onclick="logout()">Logout</button>
+                        </div>
+                    `;
+                } catch (e) {
+                    // If user data is invalid, clear it
+                    localStorage.removeItem('token');
+                    localStorage.removeItem('user');
+                }
+            }
+        }
+
+        function logout() {
+            localStorage.removeItem('token');
+            localStorage.removeItem('user');
+            window.location.href = '/login';
+        }
+
+        // Update navbar when page loads
+        document.addEventListener('DOMContentLoaded', updateNavbarAuth);
+    </script>
+
+    <div class="properties-page">
+        <div class="container">
+            <div class="page-header">
+                <h1>Browse Properties</h1>
+                <p>Find your perfect student accommodation</p>
+            </div>
+
+            <div class="properties-layout">
+                <aside class="filters">
+                    <h3>🔍 Filters & Search</h3>
+                    
+                    <div class="filter-group">
+                        <label>Search</label>
+                        <input type="text" id="searchInput" placeholder="Search area, district...">
+                    </div>
+
+                    <div class="filter-group">
+                        <label>Property Type</label>
+                        <select id="filterType">
+                            <option value="">All Types</option>
+                            <option value="room">Room</option>
+                            <option value="apartment">Apartment</option>
+                            <option value="pg">PG</option>
+                            <option value="hostel">Hostel</option>
+                            <option value="studio">Studio</option>
+                        </select>
+                    </div>
+
+                    <div class="filter-group">
+                        <label>Division</label>
+                        <select id="filterDivision" onchange="updateZillas()">
+                            <option value="">All Divisions</option>
+                            <option value="Dhaka">📍 Dhaka</option>
+                            <option value="Chittagong">📍 Chittagong</option>
+                            <option value="Sylhet">📍 Sylhet</option>
+                            <option value="Khulna">📍 Khulna</option>
+                            <option value="Rajshahi">📍 Rajshahi</option>
+                            <option value="Rangpur">📍 Rangpur</option>
+                            <option value="Barishal">📍 Barishal</option>
+                            <option value="Mymensingh">📍 Mymensingh</option>
+                        </select>
+                    </div>
+
+                    <div class="filter-group">
+                        <label>Zilla / District</label>
+                        <select id="filterZilla" onchange="updateUniversities()">
+                            <option value="">All Districts</option>
+                        </select>
+                    </div>
+
+                    <div class="filter-group">
+                        <label>University / College</label>
+                        <select id="filterUniversity">
+                            <option value="">All Universities</option>
+                        </select>
+                    </div>
+
+                    <div class="filter-group">
+                        <label>Price Range (BDT)</label>
+                        <input type="number" id="minPrice" placeholder="Min Price">
+                        <input type="number" id="maxPrice" placeholder="Max Price">
+                    </div>
+
+                    <div class="filter-group">
+                        <label>Gender Policy</label>
+                        <select id="filterGender">
+                            <option value="">Any Gender</option>
+                            <option value="male">Male Only</option>
+                            <option value="female">Female Only</option>
+                        </select>
+                    </div>
+
+                    <button class="btn btn-primary btn-block" onclick="applyFilters()">🔍 Apply Filters</button>
+                    <button class="btn btn-outline btn-block" onclick="clearFilters()" style="margin-top: 10px;">Clear</button>
+                </aside>
+
+                <main class="properties-main">
+                    <div class="properties-grid" id="propertiesGrid">
+                        <div class="loading">Loading properties...</div>
+                    </div>
+
+                    <div class="pagination" id="pagination"></div>
+                </main>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Zilla/District data for each division
+        const zillaData = {
+            'Dhaka': ['Dhaka', 'Gazipur', 'Narayanganj', 'Tangail'],
+            'Chittagong': ['Chattogram', 'Cox\'s Bazar', 'Khagrachhari', 'Cumilla'],
+            'Sylhet': ['Sylhet', 'Moulvibazar', 'Sunamganj'],
+            'Khulna': ['Khulna', 'Satkhira', 'Bagerhat', 'Jhenaidah'],
+            'Rajshahi': ['Rajshahi', 'Bogra', 'Pabna', 'Naogaon'],
+            'Rangpur': ['Rangpur', 'Dinajpur', 'Kurigram', 'Thakurgaon'],
+            'Barishal': ['Barishal', 'Patuakhali', 'Bhola', 'Jhalokati'],
+            'Mymensingh': ['Mymensingh', 'Kishoreganj', 'Netrokona', 'Sherpur']
+        };
+
+        // University data for each Zilla
+        const universityByZilla = {
+            // Dhaka Division
+            'Dhaka': ['Dhaka University', 'BUET', 'IUB (Independent University Bangladesh)', 'North South University', 'BRAC University', 'Daffodil International University', 'American International University Bangladesh', 'Bangladesh University of Business and Technology', 'East West University', 'Ahsanullah University of Science and Technology'],
+            'Gazipur': ['Bangladesh University of Engineering and Technology (BUET)', 'Jashore University of Science and Technology', 'Asian University of Bangladesh', 'BGMEA University of Fashion and Technology', 'North South University Campus'],
+            'Narayanganj': ['Narayanganj National University', 'Bangladesh University of Business and Technology', 'Prime University Campus', 'Southern University Bangladesh'],
+            'Tangail': ['National Institute of Technology (NIT)', 'Islamic University of Bangladesh', 'Dhaka International University Campus', 'Sher-e-Bangla University'],
+            
+            // Chittagong Division
+            'Chattogram': ['Chittagong University', 'Chittagong University of Engineering and Technology (CUET)', 'Daffodil International University', 'Prime University', 'Southeast University', 'Manarat International University', 'Chittagong Independent University', 'World University of Bangladesh'],
+            'Cox\'s Bazar': ['Cox\'s Bazar University', 'Jashore University of Science and Technology Campus', 'National University Colleges'],
+            'Khagrachhari': ['Khagrachhari University', 'Chittagong University Campus'],
+            'Cumilla': ['Comilla University', 'Daffodil International University (Cumilla)', 'Bangladesh University of Business and Technology', 'Cumilla Independent University'],
+            
+            // Sylhet Division
+            'Sylhet': ['Shahjalal University of Science and Technology', 'Jalalabad Ragib Rahmullah University', 'Sylhet Engineering College', 'Sylhet International University', 'East West University (Sylhet Campus)', 'Moulana Bhashani Science and Technology University'],
+            'Moulvibazar': ['Jalalabad Ragib Rahmullah University', 'Moulvibazar University', 'Islamic University of Bangladesh (Moulvibazar)', 'Moulana Bhashani Science and Technology University'],
+            'Sunamganj': ['Sunamganj University', 'Moulana Bhashani Science and Technology University (Sunamganj)', 'Islamic University of Bangladesh'],
+            
+            // Khulna Division
+            'Khulna': ['Khulna University', 'Khulna University of Engineering & Technology (KUET)', 'Islamic University of Technology', 'Prime University (Khulna)', 'Khulna College'],
+            'Satkhira': ['Satkhira University', 'Islamic University of Technology (Satkhira)', 'Satkhira Independent University'],
+            'Bagerhat': ['Bagerhat University', 'Faridpur National College (Bagerhat)'],
+            'Jhenaidah': ['Jhenaidah University', 'Islamic University of Bangladesh (Jhenaidah)', 'Jhenaidah Independent University'],
+            
+            // Rajshahi Division
+            'Rajshahi': ['Rajshahi University', 'Rajshahi University of Engineering & Technology (RUET)', 'Islamic University of Technology', 'Varendra University', 'Rajshahi Science College'],
+            'Bogra': ['Islamic University of Bangladesh (Bogra)', 'Bogra University', 'Sher-e-Bangla University', 'Bogra Independent University'],
+            'Pabna': ['Pabna University', 'Islamic University of Bangladesh (Pabna)', 'Pabna Independent University'],
+            'Naogaon': ['Naogaon University', 'Islamic University of Bangladesh (Naogaon)'],
+            
+            // Rangpur Division
+            'Rangpur': ['Rangpur University', 'Begum Rokeya University', 'Northern University Bangladesh', 'Rangpur Medical College', 'Rangpur Independent University'],
+            'Dinajpur': ['Dinajpur University', 'Begum Rokeya University (Dinajpur)', 'Islamic University of Bangladesh (Dinajpur)', 'Dinajpur Independent University'],
+            'Kurigram': ['Kurigram University', 'Islamic University of Bangladesh (Kurigram)', 'Northern University Bangladesh (Kurigram)'],
+            'Thakurgaon': ['Thakurgaon University', 'Begum Rokeya University (Thakurgaon)', 'Islamic University of Bangladesh (Thakurgaon)'],
+            
+            // Barishal Division
+            'Barishal': ['Barishal University', 'Barishal Engineering College', 'Barishal Medical College', 'Bangladesh University of Business & Technology (Barishal)', 'Barishal Independent University'],
+            'Patuakhali': ['Patuakhali University', 'Patuakhali Science and Technology University', 'Islamic University of Bangladesh (Patuakhali)', 'Patuakhali Independent University'],
+            'Bhola': ['Bhola University', 'Islamic University of Bangladesh (Bhola)', 'Bhola Independent University'],
+            'Jhalokati': ['Jhalokati University', 'Bangladesh University of Business & Technology (Jhalokati)'],
+            
+            // Mymensingh Division
+            'Mymensingh': ['Bangladesh Agricultural University', 'Mymensingh Engineering College', 'National University', 'Mymensingh Medical College', 'Mymensingh University', 'Moulana Bhashani Science and Technology University'],
+            'Kishoreganj': ['Kishoreganj University', 'Islamic University of Bangladesh (Kishoreganj)', 'Moulana Bhashani Science and Technology University (Kishoreganj)', 'Kishoreganj Independent University'],
+            'Netrokona': ['Netrokona University', 'Islamic University of Bangladesh (Netrokona)', 'Moulana Bhashani Science and Technology University (Netrokona)'],
+            'Sherpur': ['Sherpur University', 'Islamic University of Bangladesh (Sherpur)', 'Bangladesh Agricultural University (Sherpur Campus)']
+        };
+
+        let currentPage = 1;
+
+        function updateZillas() {
+            const division = document.getElementById('filterDivision').value;
+            const zillaSelect = document.getElementById('filterZilla');
+            
+            // Clear existing options except the first one
+            zillaSelect.innerHTML = '<option value="">All Districts</option>';
+            
+            if (division && zillaData[division]) {
+                // Add zillas for selected division
+                zillaData[division].forEach(zilla => {
+                    const option = document.createElement('option');
+                    option.value = zilla;
+                    option.textContent = `📍 ${zilla}`;
+                    zillaSelect.appendChild(option);
+                });
+            }
+            
+            // Only reset university dropdown if not during URL parameter loading
+            if (!window.isLoadingURLParams) {
+                updateUniversities();
+            }
+        }
+
+        function updateUniversities() {
+            const zilla = document.getElementById('filterZilla').value;
+            const universitySelect = document.getElementById('filterUniversity');
+            
+            // Clear existing options except the first one
+            universitySelect.innerHTML = '<option value="">All Universities</option>';
+            
+            if (zilla && universityByZilla[zilla]) {
+                // Add universities for selected zilla
+                universityByZilla[zilla].forEach(university => {
+                    const option = document.createElement('option');
+                    option.value = university;
+                    option.textContent = university;
+                    universitySelect.appendChild(option);
+                });
+            }
+        }
+
+        async function loadProperties() {
+            const searchInput = document.getElementById('searchInput')?.value || '';
+            const type = document.getElementById('filterType')?.value || '';
+            const division = document.getElementById('filterDivision')?.value || '';
+            const zilla = document.getElementById('filterZilla')?.value || '';
+            const university = document.getElementById('filterUniversity')?.value || '';
+            const minPrice = document.getElementById('minPrice')?.value || '';
+            const maxPrice = document.getElementById('maxPrice')?.value || '';
+            const gender = document.getElementById('filterGender')?.value || '';
+
+            try {
+                let url = `/api/properties?page=${currentPage}`;
+                if (searchInput) url += `&search=${encodeURIComponent(searchInput)}`;
+                if (type) url += `&type=${type}`;
+                if (division) url += `&city=${encodeURIComponent(division)}`;
+                if (zilla) url += `&zilla=${encodeURIComponent(zilla)}`;
+                if (university) url += `&university=${encodeURIComponent(university)}`;
+                if (minPrice) url += `&minPrice=${minPrice}`;
+                if (maxPrice) url += `&maxPrice=${maxPrice}`;
+                if (gender) url += `&gender=${gender}`;
+
+                const response = await fetch(url);
+                const data = await response.json();
+
+                if (data.success) {
+                    displayProperties(data.data);
+                    displayPagination(data.pagination);
+                } else {
+                    document.getElementById('propertiesGrid').innerHTML = '<p>No properties found</p>';
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                document.getElementById('propertiesGrid').innerHTML = '<p>Error loading properties</p>';
+            }
+        }
+
+        function displayProperties(properties) {
+            const grid = document.getElementById('propertiesGrid');
+            
+            if (properties.length === 0) {
+                grid.innerHTML = '<div style="grid-column: 1/-1; text-align: center; padding: 40px;"><p>❌ No properties found. Try different filters!</p></div>';
+                return;
+            }
+
+            grid.innerHTML = '';
+            grid.innerHTML = properties.map(property => `
+                <div class="property-card">
+                    <img src="${property.images[0]?.url || 'https://via.placeholder.com/400x300'}" alt="${property.title}">
+                    <div class="property-info">
+                        <h3>${property.title}</h3>
+                        <p class="location">
+                            <i class="fas fa-map-marker-alt"></i>
+                            ${property.address.area}, ${property.address.district}
+                        </p>
+                        <p class="university">
+                            <i class="fas fa-university"></i>
+                            ${property.university}
+                        </p>
+                        <div class="property-meta">
+                            <span><i class="fas fa-bed"></i> ${property.rooms.total} Rooms</span>
+                            <span><i class="fas fa-star"></i> ${property.rating.average.toFixed(1)}</span>
+                            <span><i class="fas fa-users"></i> ${property.rules.gender === 'any' ? 'Any' : property.rules.gender}</span>
+                        </div>
+                        <div class="property-footer">
+                            <div class="price">
+                                <span class="amount">${property.price.currency} ${property.price.amount.toLocaleString()}</span>
+                                <span class="period">/${property.price.period}</span>
+                            </div>
+                            <button class="btn btn-sm" onclick="viewProperty('${property._id}')">View Details</button>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function displayPagination(pagination) {
+            const paginationDiv = document.getElementById('pagination');
+            if (pagination.pages <= 1) {
+                paginationDiv.innerHTML = '';
+                return;
+            }
+            
+            let html = '';
+            const currentPage = pagination.page;
+            const totalPages = pagination.pages;
+            
+            // Previous button
+            html += `<button class="btn btn-outline btn-sm" ${currentPage === 1 ? 'disabled' : ''} onclick="goToPage(${currentPage - 1})">
+                <i class="fas fa-chevron-left"></i> Prev
+            </button>`;
+            
+            // Determine range of page buttons to show
+            const range = 1;
+            let start = Math.max(1, currentPage - range);
+            let end = Math.min(totalPages, currentPage + range);
+            
+            if (start > 1) {
+                html += `<button class="btn btn-outline btn-sm" onclick="goToPage(1)">1</button>`;
+                if (start > 2) {
+                    html += `<span style="align-self: center; padding: 0 5px; color: #6B7280; font-weight: bold;">...</span>`;
+                }
+            }
+            
+            for (let i = start; i <= end; i++) {
+                html += `<button class="btn btn-sm ${i === currentPage ? 'btn-primary' : 'btn-outline'}" 
+                         onclick="goToPage(${i})">${i}</button>`;
+            }
+            
+            if (end < totalPages) {
+                if (end < totalPages - 1) {
+                    html += `<span style="align-self: center; padding: 0 5px; color: #6B7280; font-weight: bold;">...</span>`;
+                }
+                html += `<button class="btn btn-outline btn-sm" onclick="goToPage(${totalPages})">${totalPages}</button>`;
+            }
+            
+            // Next button
+            html += `<button class="btn btn-outline btn-sm" ${currentPage === totalPages ? 'disabled' : ''} onclick="goToPage(${currentPage + 1})">
+                Next <i class="fas fa-chevron-right"></i>
+            </button>`;
+            
+            paginationDiv.innerHTML = html;
+        }
+
+        function goToPage(page) {
+            currentPage = page;
+            loadProperties();
+        }
+
+        function applyFilters() {
+            currentPage = 1;
+            
+            // Build URL with current filter values
+            const searchInput = document.getElementById('searchInput').value;
+            const type = document.getElementById('filterType').value;
+            const division = document.getElementById('filterDivision').value;
+            const zilla = document.getElementById('filterZilla').value;
+            const minPrice = document.getElementById('minPrice').value;
+            const maxPrice = document.getElementById('maxPrice').value;
+            const gender = document.getElementById('filterGender').value;
+            
+            let url = '/properties?';
+            if (searchInput) url += `search=${encodeURIComponent(searchInput)}&`;
+            if (type) url += `type=${type}&`;
+            if (division) url += `city=${encodeURIComponent(division)}&`;
+            if (zilla) url += `zilla=${encodeURIComponent(zilla)}&`;
+            if (minPrice) url += `minPrice=${minPrice}&`;
+            if (maxPrice) url += `maxPrice=${maxPrice}&`;
+            if (gender) url += `gender=${gender}&`;
+            
+            // Update browser history
+            window.history.pushState({}, '', url);
+            
+            loadProperties();
+        }
+
+        function clearFilters() {
+            document.getElementById('searchInput').value = '';
+            document.getElementById('filterType').value = '';
+            document.getElementById('filterDivision').value = '';
+            document.getElementById('filterZilla').value = '';
+            document.getElementById('filterUniversity').value = '';
+            document.getElementById('minPrice').value = '';
+            document.getElementById('maxPrice').value = '';
+            document.getElementById('filterGender').value = '';
+            document.getElementById('filterZilla').innerHTML = '<option value="">All Districts</option>';
+            document.getElementById('filterUniversity').innerHTML = '<option value="">All Universities</option>';
+            currentPage = 1;
+            loadProperties();
+        }
+
+        function viewProperty(id) {
+            window.location.href = `/property-details?id=${id}`;
+        }
+
+        // Read URL parameters and apply to filters
+        function applyURLParameters() {
+            window.isLoadingURLParams = true;
+            const params = new URLSearchParams(window.location.search);
+            
+            // Apply search parameter
+            if (params.has('search')) {
+                document.getElementById('searchInput').value = params.get('search');
+            }
+            
+            // Apply type filter
+            if (params.has('type')) {
+                document.getElementById('filterType').value = params.get('type');
+            }
+            
+            // Apply division filter
+            if (params.has('city')) {
+                document.getElementById('filterDivision').value = params.get('city');
+                updateZillas(); // This will populate zilas
+            }
+            
+            // Apply zilla filter
+            if (params.has('zilla')) {
+                document.getElementById('filterZilla').value = params.get('zilla');
+            }
+            
+            // Apply price filters
+            if (params.has('minPrice')) {
+                document.getElementById('minPrice').value = params.get('minPrice');
+            }
+            if (params.has('maxPrice')) {
+                document.getElementById('maxPrice').value = params.get('maxPrice');
+            }
+            
+            // Apply gender filter
+            if (params.has('gender')) {
+                document.getElementById('filterGender').value = params.get('gender');
+            }
+            
+            // Apply university filter (if in URL)
+            if (params.has('university')) {
+                document.getElementById('filterUniversity').value = params.get('university');
+            } else {
+                // Update universities dropdown but keep it empty if not in URL
+                updateUniversities();
+                document.getElementById('filterUniversity').value = '';
+            }
+            
+            window.isLoadingURLParams = false;
+        }
+
+        // Search on Enter key
+        document.addEventListener('DOMContentLoaded', () => {
+            // First apply URL parameters (loads all filter values synchronously)
+            applyURLParameters();
+            
+            // Then set up search input event listener
+            const searchInput = document.getElementById('searchInput');
+            if (searchInput) {
+                searchInput.addEventListener('keypress', (e) => {
+                    if (e.key === 'Enter') {
+                        applyFilters();
+                    }
+                });
+            }
+            
+            // Finally load properties with the applied filters
+            loadProperties();
+        });
+    </script>
+</body>
+</html>

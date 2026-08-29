@@ -1,0 +1,368 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Property Details - StudentStay</title>
+    <link rel="stylesheet" href="/css/style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="container">
+            <div class="nav-brand">
+                <i class="fas fa-home"></i>
+                <span>StudentStay</span>
+            </div>
+            <ul class="nav-menu">
+                <li><a href="/">Home</a></li>
+                <li><a href="/properties" class="active">Properties</a></li>
+                <li><a href="/dashboard">Dashboard</a></li>
+            </ul>
+            <div class="nav-actions">
+                <a href="/login" class="btn btn-outline">Login</a>
+                <a href="/register" class="btn btn-primary">Sign Up</a>
+            </div>
+            <button class="nav-toggle" onclick="document.querySelector('.nav-menu').classList.toggle('active')">
+                <i class="fas fa-bars"></i>
+            </button>
+        </div>
+    </nav>
+
+    <div class="property-details-page">
+        <div class="container">
+            <a href="/properties" class="back-link">
+                <i class="fas fa-arrow-left"></i> Back to Properties
+            </a>
+
+            <div id="propertyContent" style="display: none;">
+                <!-- Hero Image -->
+                <div class="property-hero">
+                    <img id="propertyImage" src="" alt="Property">
+                </div>
+
+                <!-- Basic Info -->
+                <div class="property-header">
+                    <div>
+                        <h1 id="propertyTitle"></h1>
+                        <p id="propertyAddress" class="location" style="font-size: 16px; margin-top: 8px;">
+                            <i class="fas fa-map-marker-alt"></i> <span></span>
+                        </p>
+                    </div>
+                    <div class="property-price-box">
+                        <div class="price-amount">
+                            <span id="propertyPrice"></span> / <span id="propertyPeriod"></span>
+                        </div>
+                        <button class="btn btn-primary" id="bookBtn" onclick="goToBooking()" style="margin-top: 12px;">Book Now</button>
+                    </div>
+                </div>
+
+                <hr class="property-divider">
+
+                <!-- Details Grid -->
+                <div class="details-grid">
+                    <div class="detail-card">
+                        <i class="fas fa-bed"></i>
+                        <div>
+                            <p class="detail-label">Total Rooms</p>
+                            <p class="detail-value" id="propertyRooms"></p>
+                        </div>
+                    </div>
+                    <div class="detail-card">
+                        <i class="fas fa-bath"></i>
+                        <div>
+                            <p class="detail-label">Bathrooms</p>
+                            <p class="detail-value" id="propertyBaths"></p>
+                        </div>
+                    </div>
+                    <div class="detail-card">
+                        <i class="fas fa-star" style="color: #FFB800;"></i>
+                        <div>
+                            <p class="detail-label">Rating</p>
+                            <p class="detail-value" id="propertyRating"></p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Description -->
+                <div class="property-section">
+                    <h2>About This Property</h2>
+                    <p id="propertyDescription"></p>
+                </div>
+
+                <!-- Amenities -->
+                <div class="property-section">
+                    <h2>Amenities</h2>
+                    <div id="amenitiesList" class="amenities-grid"></div>
+                </div>
+
+                <!-- Rules -->
+                <div class="property-section">
+                    <div class="rules-card">
+                        <h2>House Rules</h2>
+                        <div id="rulesList"></div>
+                    </div>
+                </div>
+
+                <!-- Landlord Info -->
+                <div class="property-section">
+                    <h2>Contact Landlord</h2>
+                    <div class="landlord-card">
+                        <img id="landlordImage" src="" alt="Landlord">
+                        <div class="landlord-info">
+                            <p id="landlordName"></p>
+                            <p id="landlordPhone"></p>
+                        </div>
+                        <button class="btn btn-primary" onclick="contactLandlord()">Message</button>
+                    </div>
+                </div>
+            </div>
+
+            <div id="loadingContent" style="text-align: center; padding: 50px;">
+                <p>Loading property details...</p>
+            </div>
+
+            <div id="errorContent" style="display: none; text-align: center; padding: 50px;">
+                <p style="color: #EF4444; font-size: 16px;">Property not found</p>
+                <a href="/properties" class="btn btn-primary" style="margin-top: 20px;">Back to Properties</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Booking Modal -->
+    <div id="bookingModal" class="modal">
+        <div class="modal-content">
+            <button class="modal-close" onclick="closeBookingModal()">&times;</button>
+            <h2 style="margin-bottom: 20px; font-weight: 700;">Confirm Booking</h2>
+            
+            <form id="bookingForm" onsubmit="submitBooking(event)">
+                <div class="form-group" style="margin-bottom: 15px;">
+                    <label for="bookingStartDate" style="display: block; margin-bottom: 8px; font-weight: 600;">Start Date *</label>
+                    <input type="date" id="bookingStartDate" required style="width: 100%; padding: 10px; border: 2px solid var(--border); border-radius: 8px;">
+                </div>
+                
+                <div class="form-group" style="margin-bottom: 15px;">
+                    <label for="bookingDuration" style="display: block; margin-bottom: 8px; font-weight: 600;">Duration (Months) *</label>
+                    <input type="number" id="bookingDuration" min="1" max="12" value="1" required onchange="calculateTotalAmount()" style="width: 100%; padding: 10px; border: 2px solid var(--border); border-radius: 8px;">
+                </div>
+                
+                <div style="margin-top: 20px; background: var(--light); padding: 15px; border-radius: 8px; margin-bottom: 15px;">
+                    <p style="font-weight: 600; color: var(--dark); display: flex; justify-content: space-between; margin-bottom: 8px;">
+                        <span>Price per Month:</span>
+                        <span id="modalPriceDisplay">BDT 0</span>
+                    </p>
+                    <p style="font-weight: 700; color: var(--primary); font-size: 18px; margin-top: 10px; display: flex; justify-content: space-between; border-top: 1px solid var(--border); padding-top: 10px; margin-bottom: 0;">
+                        <span>Total Amount:</span>
+                        <span id="modalTotalDisplay">BDT 0</span>
+                    </p>
+                </div>
+                
+                <div class="form-group" style="margin-bottom: 15px;">
+                    <label for="bookingNotes" style="display: block; margin-bottom: 8px; font-weight: 600;">Notes for Landlord</label>
+                    <textarea id="bookingNotes" placeholder="Any special requests or details..." rows="3" style="width: 100%; padding: 10px; border: 2px solid var(--border); border-radius: 8px; font-family: inherit; resize: vertical;"></textarea>
+                </div>
+                
+                <button type="submit" class="btn btn-primary btn-block" style="margin-top: 10px;">Confirm & Book</button>
+            </form>
+        </div>
+    </div>
+
+    <script src="/js/main.js"></script>
+    <script>
+        let propertyPrice = 0;
+
+        async function loadPropertyDetails() {
+            const params = new URLSearchParams(window.location.search);
+            const propertyId = params.get('id');
+
+            if (!propertyId) {
+                document.getElementById('errorContent').style.display = 'block';
+                document.getElementById('loadingContent').style.display = 'none';
+                return;
+            }
+
+            try {
+                const response = await fetch(`/api/properties/${propertyId}`);
+                const data = await response.json();
+
+                if (!data.success) {
+                    document.getElementById('errorContent').style.display = 'block';
+                    document.getElementById('loadingContent').style.display = 'none';
+                    return;
+                }
+
+                const property = data.data;
+                propertyPrice = property.price.amount;
+
+                // Populate property details
+                document.getElementById('propertyTitle').textContent = property.title;
+                document.getElementById('propertyImage').src = property.images[0]?.url || 'https://via.placeholder.com/800x500';
+                document.getElementById('propertyAddress').innerHTML = `
+                    <i class="fas fa-map-marker-alt"></i> 
+                    ${property.address.area}, ${property.address.city}
+                `;
+                document.getElementById('propertyPrice').textContent = `${property.price.currency} ${property.price.amount.toLocaleString()}`;
+                document.getElementById('propertyPeriod').textContent = property.price.period;
+                document.getElementById('propertyRooms').textContent = property.rooms.available + '/' + property.rooms.total;
+                document.getElementById('propertyBaths').textContent = property.rooms.bathrooms || 'N/A';
+                document.getElementById('propertyRating').textContent = property.rating.average.toFixed(1) + ' ★';
+                document.getElementById('propertyDescription').textContent = property.description;
+
+                // Amenities
+                const amenitiesHtml = property.amenities.map(amenity => `
+                    <div class="amenity-tag">
+                        <i class="fas fa-check"></i> ${amenity}
+                    </div>
+                `).join('');
+                document.getElementById('amenitiesList').innerHTML = amenitiesHtml || '<p>No amenities listed</p>';
+
+                // Rules
+                const rulesHtml = `
+                    <p><strong>Gender:</strong> ${property.rules.gender || 'Any'}</p>
+                    <p><strong>Smoking:</strong> ${property.rules.smoking ? 'Allowed' : 'Not Allowed'}</p>
+                    <p><strong>Pets:</strong> ${property.rules.pets ? 'Allowed' : 'Not Allowed'}</p>
+                    <p><strong>Visitors:</strong> ${property.rules.visitors ? 'Allowed' : 'Not Allowed'}</p>
+                `;
+                document.getElementById('rulesList').innerHTML = rulesHtml;
+
+                // Landlord Info
+                if (property.landlord) {
+                    document.getElementById('landlordName').textContent = property.landlord.name || 'Landlord';
+                    document.getElementById('landlordImage').src = property.landlord.profileImage || 'https://ui-avatars.com/api/?name=Landlord';
+                    document.getElementById('landlordPhone').textContent = property.landlord.phone || 'Contact listed';
+                }
+
+                document.getElementById('propertyContent').style.display = 'block';
+                document.getElementById('loadingContent').style.display = 'none';
+            } catch (error) {
+                console.error('Error:', error);
+                document.getElementById('errorContent').style.display = 'block';
+                document.getElementById('loadingContent').style.display = 'none';
+            }
+        }
+
+        function goToBooking() {
+            const user = getCurrentUser();
+            if (!user) {
+                alert('Please login to book a property');
+                window.location.href = '/login';
+                return;
+            }
+            if (user.role !== 'student') {
+                alert('Only students can book properties');
+                return;
+            }
+            
+            const today = new Date().toISOString().split('T')[0];
+            document.getElementById('bookingStartDate').value = today;
+            document.getElementById('bookingStartDate').min = today;
+            
+            document.getElementById('bookingDuration').value = 1;
+            calculateTotalAmount();
+            
+            document.getElementById('bookingModal').classList.add('active');
+        }
+
+        function closeBookingModal() {
+            document.getElementById('bookingModal').classList.remove('active');
+        }
+
+        function calculateTotalAmount() {
+            const duration = parseInt(document.getElementById('bookingDuration').value) || 1;
+            const total = propertyPrice * duration;
+            document.getElementById('modalPriceDisplay').textContent = `BDT ${propertyPrice.toLocaleString()}`;
+            document.getElementById('modalTotalDisplay').textContent = `BDT ${total.toLocaleString()}`;
+        }
+
+        async function submitBooking(event) {
+            event.preventDefault();
+            const token = localStorage.getItem('token');
+            const params = new URLSearchParams(window.location.search);
+            const propertyId = params.get('id');
+            
+            const startDate = document.getElementById('bookingStartDate').value;
+            const duration = parseInt(document.getElementById('bookingDuration').value);
+            const notes = document.getElementById('bookingNotes').value;
+            
+            // Calculate end date
+            const start = new Date(startDate);
+            const end = new Date(start);
+            end.setMonth(start.getMonth() + duration);
+            const endDate = end.toISOString().split('T')[0];
+            
+            const totalAmount = propertyPrice * duration;
+            
+            try {
+                const response = await fetch('/api/bookings', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify({
+                        propertyId,
+                        startDate,
+                        endDate,
+                        duration,
+                        totalAmount,
+                        notes
+                    })
+                });
+                
+                const data = await response.json();
+                if (data.success) {
+                    alert('Booking request submitted successfully!');
+                    closeBookingModal();
+                    window.location.href = '/dashboard';
+                } else {
+                    alert(data.message || 'Booking failed');
+                }
+            } catch (error) {
+                console.error('Error booking:', error);
+                alert('An error occurred during booking. Please try again.');
+            }
+        }
+
+        function contactLandlord() {
+            alert('Messaging landlord - Coming soon!');
+        }
+
+        function updateNavbarAuth() {
+            const token = localStorage.getItem('token');
+            const user = localStorage.getItem('user');
+            const navActions = document.querySelector('.nav-actions');
+            
+            if (!navActions) return;
+            
+            if (token && user) {
+                try {
+                    const userData = JSON.parse(user);
+                    navActions.innerHTML = `
+                        <span class="user-name">${userData.name || userData.email}</span>
+                        <div class="user-menu">
+                            <a href="/dashboard" class="btn btn-outline">Dashboard</a>
+                            <a href="/add-property" class="btn btn-outline">Add Property</a>
+                            <button class="btn btn-primary" onclick="logout()">Logout</button>
+                        </div>
+                    `;
+                } catch (e) {
+                    localStorage.removeItem('token');
+                    localStorage.removeItem('user');
+                }
+            }
+        }
+
+        function logout() {
+            localStorage.removeItem('token');
+            localStorage.removeItem('user');
+            window.location.href = '/login';
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            updateNavbarAuth();
+            loadPropertyDetails();
+        });
+    </script>
+</body>
+</html>

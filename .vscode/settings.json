@@ -1,0 +1,7 @@
+{
+  "typescript.enablePromptUseWorkspaceTsdk": true,
+  "typescript.tsdk": "node_modules/typescript/lib",
+  "typescript.validate.enable": true,
+  "typescript.checkJs": false,
+  "python.linting.enabled": false
+}
