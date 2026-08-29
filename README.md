@@ -150,9 +150,9 @@ MIT License - See LICENSE file for details
 
 ## 🎓 Academic Information
 
-**Project**: Project 300 - Web Development
-**University**: Metropolitan University
-**Department**: Computer Science & Engineering
-**Instructor**: Nasif Istiak Remon
+- **Project**: Project 300 - Web Development
+- **University**: Metropolitan University
+- **Department**: Computer Science & Engineering
+- **Instructor**: Nasif Istiak Remon
 
 ---
