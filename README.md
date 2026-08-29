@@ -144,18 +144,13 @@ MIT License - See LICENSE file for details
 
 ## 👥 Contact
 
-- **Developer**: Metropolitan University Student
-- **Email**: info@studentstay.com
-- **WhatsApp**: +880 1721-140302
+- **Developer**: Abu Bokor Siddiq & Chaity Koiry
+- **Email**: abubokor2929@gmail.com
+- **WhatsApp**: +880 1315-440259
 
 ## 🎓 Academic Information
 
 **Project**: Project 300 - Web Development
 **University**: Metropolitan University
 **Department**: Computer Science & Engineering
-**Instructor**: Abdul Wadud Shakib
-
----
-
-Made with ❤️ for students, by students
-```
+**Instructor**: Nasif Istiak Remon
